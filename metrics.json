@@ -1,0 +1,11 @@
+{
+  "dataset": "SGCC (State Grid Corporation of China) \u2014 public benchmark, used as proxy due to no public Indian DISCOM theft-labeled dataset existing",
+  "xgboost": {
+    "auc": 0.7491565108972904,
+    "f1": 0.2991819244253993
+  },
+  "lstm": {
+    "auc": 0.6900672222008115
+  },
+  "india_deployment_note": "Model architecture and feature pipeline are designed to be format-agnostic. For Indian deployment, this same pipeline would ingest data from DISCOM smart meters under India's Smart Metering National Programme, and be fine-tuned (transfer learning) on real Indian consumption + confirmed-theft records once available via state utility partnerships (e.g. MSEDCL, BSES, Tata Power)."
+}
