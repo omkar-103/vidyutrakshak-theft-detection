@@ -1,8 +1,8 @@
 # VidyutRakshak — AI-Powered Electricity Theft Detection
 
-**ML Bubble 2026 — Machine Learning Awareness & Skill Building Challenge**
-Army Institute of Technology (AIT), Pune
-Team: Kaivalya
+**ML Bubble 2026 — Machine Learning Awareness & Skill Building Challenge**  
+Army Institute of Technology (AIT), Pune  
+Team: Kaivalya  
 
 ---
 
@@ -25,28 +25,34 @@ Most teams gravitate toward healthcare, fraud, or agriculture. Energy & power ma
 ## Methodology
 
 1. **Data cleaning:** Missing values (~25% of the raw dataset) handled via linear interpolation per customer; outliers capped using the 3-sigma rule.
-2. **Feature engineering:** 12 human-readable statistical features per customer (mean, std, min, max, median, skewness, kurtosis, zero-consumption-day %, first/second-half consumption drop %, weekly variance) — chosen specifically to remain interpretable for SHAP explainability.
-3. **Modeling — two architectures compared:**
-   - **XGBoost** on engineered features, with `scale_pos_weight` to handle class imbalance.
-   - **LSTM** on raw daily consumption sequences, to compare feature-engineered vs. sequence-learning approaches.
-4. **Explainability:** SHAP (TreeExplainer) applied to the XGBoost model for both global feature importance and individual-customer risk explanations.
+2. **Feature engineering:** 15 human-readable statistical features per customer (mean, std, min, max, median, skewness, kurtosis, zero-consumption-day %, first/second-half consumption drop %, weekly variance, 7-day autocorrelation, 30-day autocorrelation, coefficient of variation) — chosen specifically to remain interpretable for SHAP explainability.
+3. **Modeling — architectures & imbalance strategies compared:**
+   - **XGBoost** on engineered statistical features with class-weighting via `scale_pos_weight`, hyperparameter tuning via randomized search, and decision threshold optimization.
+   - **XGBoost + SMOTE** oversampling comparison to evaluate synthetic oversampling against cost-sensitive class weighting.
+   - **LSTM** (sequence-based deep learning) on raw normalized daily consumption sequences to compare explicit statistical feature engineering against direct sequence learning.
+4. **Explainability:** SHAP (TreeExplainer) applied to the final XGBoost model for both global feature importance rankings and individual-customer risk score breakdowns.
 
 ## Results
 
-| Model | AUC-ROC | F1 (theft class) |
-|---|---|---|
-| XGBoost | 0.749 | 0.299 |
-| LSTM | 0.690 | — |
+| Model | AUC-ROC | F1 (theft class) | PR-AUC |
+|---|---|---|---|
+| XGBoost (tuned + threshold-optimized) | 0.777 | 0.374 | 0.322 |
+| XGBoost + SMOTE | 0.731 | — | 0.298 |
+| LSTM | 0.689 | — | — |
 
 ![XGBoost vs LSTM ROC Curve Comparison](model_comparison.png)
 
-XGBoost on engineered statistical features outperformed the LSTM on raw sequences, suggesting that explicit statistical signals (consumption variance, drop percentage) capture theft-indicative patterns more effectively than sequence learning alone on this dataset. F1 for the theft class is evaluated separately from overall accuracy, since accuracy alone is misleading on an ~8.5%-imbalanced dataset — a model that always predicts "no theft" would score ~91% accuracy while being practically useless.
+### Key Performance Insights
+- **Optimal Model Selection:** Tuned XGBoost achieved the top performance with an **AUC-ROC of 0.777**, an **F1 score of 0.374** (for the minority theft class), and a **PR-AUC of 0.322** at an optimized decision threshold of **0.639**.
+- **Imbalance Handling:** Class weighting via `scale_pos_weight` outperformed SMOTE oversampling (AUC-ROC 0.731, PR-AUC 0.298), demonstrating that weighting loss during training preserves boundary clarity better than synthetic sample generation on this high-dimensional feature set.
+- **Feature Engineering vs Sequence Learning:** XGBoost on engineered features outperformed the LSTM on raw consumption sequences (AUC-ROC 0.689). Explicit statistical metrics (such as weekly variance and drop percentage) capture theft-indicative signatures more effectively than sequence learning alone on 1,035-day daily records.
+- **Precision-Recall Benchmark:** Baseline random guessing on this ~8.53% positive-class test set yields a PR-AUC of **0.085**. The final model's PR-AUC of **0.322** represents a **~3.79x improvement over random guessing**.
 
-Full metrics are in `metrics.json`.
+Full metrics are available in `metrics.json`.
 
 ## Explainability Highlights
 
-SHAP analysis identifies `weekly_variance`, `consumption_drop_pct`, and `max_consumption` as the strongest theft-indicative features — consistent with real-world theft patterns such as irregular tampering and sudden usage drops.
+SHAP analysis identifies `weekly_variance`, `consumption_drop_pct`, and `kurtosis` as the strongest theft-indicative features — consistent with real-world theft patterns such as irregular tampering and abrupt usage drops.
 
 ### Global Feature Importance
 ![Global SHAP Feature Importance](shap_summary.png)
@@ -54,33 +60,33 @@ SHAP analysis identifies `weekly_variance`, `consumption_drop_pct`, and `max_con
 ### Single-Customer Risk Explanation
 ![Individual Customer SHAP Explanation](shap_individual_example.png)
 
-The SHAP explanations show exactly which statistical factors drove an individual customer's risk score up or down, providing actionable transparency for field inspectors.
+The SHAP force plot shows exactly how individual statistical factors push a specific customer's risk score higher or lower, providing transparent, auditable evidence for utility field inspection teams.
 
 ## Deployment Considerations
 
-- **Data ingestion:** Designed to plug into smart meter data feeds from Indian DISCOMs under the Smart Metering National Programme.
-- **Model refresh:** Feedback loop where field inspector outcomes (confirmed theft / false positive) are logged and used to periodically retrain the model, improving accuracy on real Indian consumption patterns over time.
-- **Inspector-facing output:** Risk score + SHAP-based explanation per flagged customer, so inspections are prioritized and justified, not just a raw model score.
-- **Scalability:** XGBoost inference is lightweight enough for near-real-time scoring across large customer bases; LSTM retained for periodic deeper sequence-level audits.
+- **Data Ingestion:** Designed to plug into smart meter data feeds from Indian DISCOMs under the Smart Metering National Programme.
+- **Model Refresh & Feedback Loop:** Field inspector outcomes (confirmed theft vs false positive) are logged to continuously retrain and fine-tune the model on localized Indian consumption patterns.
+- **Inspector-Facing Output:** Risk score + SHAP feature breakdown per flagged customer so inspection teams can prioritize high-risk targets with clear rationale.
+- **Scalability:** XGBoost inference is lightweight and fast enough to score millions of customer meters in batch or near-real-time.
 
 ## Repository Structure
 
 ```
 vidyutrakshak-theft-detection/
 ├── README.md
-├── VidyutRakshak_Notebook.ipynb        # Full Colab notebook — data cleaning, feature engineering, training, SHAP
-├── vidyutrakshak_xgb_model.json        # Trained XGBoost model
-├── metrics.json                        # Performance metrics + dataset/deployment notes
-├── model_comparison.png                # XGBoost vs LSTM ROC curve comparison
-├── shap_summary.png                    # Global SHAP feature importance plot
-├── shap_individual_example.png         # Individual customer SHAP explanation
+├── VidyutRakshak_—_Electricity_Theft_Detection.ipynb  # Full Colab notebook — cleaning, feature engineering, training, SHAP
+├── vidyutrakshak_xgb_model.json                      # Trained final XGBoost model
+├── metrics.json                                      # Confirmed performance metrics & deployment notes
+├── model_comparison.png                              # XGBoost vs LSTM ROC curve comparison
+├── shap_summary.png                                  # Global SHAP feature importance plot
+├── shap_individual_example.png                       # Individual customer SHAP force plot explanation
 └── docs/
-    └── project_documentation.pdf       # Detailed project report
+    └── svfbn.docx                                    # Project documentation
 ```
 
 ## Team
 
-**Kaivalya**
+**Kaivalya**  
 Omkar Parelkar — [github.com/omkar-103](https://github.com/omkar-103) — omkarparelkar@gmail.com
 
 ## Submitted For
