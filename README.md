@@ -8,7 +8,7 @@ Team: Kaivalya
 
 ## Submission Requirements Checklist
 
-- [x] **Project Presentation (PPT/PDF)** — see `PPT/Explainable-AI-for-Electricity-Theft-Detection-Built-for-India.pptx.pptx`
+- [x] **Project Presentation (PPT/PDF)** — see `PPT/Explainable-AI-for-Electricity-Theft-Detection-Built-for-India.pptx`
 - [x] **Source Code** — see `VidyutRakshak_—_Electricity_Theft_Detection.ipynb`
 - [x] **Dataset Details** — see "Dataset" section below, and `metrics.json`
 - [x] **Model Performance Metrics** — see `metrics.json` and "Results" section below
@@ -92,7 +92,7 @@ vidyutrakshak-theft-detection/
 ├── shap_summary.png                                  # Global SHAP feature importance plot
 ├── shap_individual_example.png                       # Individual customer SHAP force plot explanation
 ├── PPT/
-│   └── Explainable-AI-for-Electricity-Theft-Detection-Built-for-India.pptx.pptx # Final presentation slides
+│   └── Explainable-AI-for-Electricity-Theft-Detection-Built-for-India.pptx # Final presentation slides
 └── docs/
     └── VidyutRakshak_Documentation.docx              # Comprehensive project documentation
 ```
