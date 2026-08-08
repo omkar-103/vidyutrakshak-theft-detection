@@ -6,6 +6,17 @@ Team: Kaivalya
 
 ---
 
+## Submission Requirements Checklist
+
+- [x] **Project Presentation (PPT/PDF)** — see `PPT/Explainable-AI-for-Electricity-Theft-Detection-Built-for-India.pptx.pptx`
+- [x] **Source Code** — see `VidyutRakshak_—_Electricity_Theft_Detection.ipynb`
+- [x] **Dataset Details** — see "Dataset" section below, and `metrics.json`
+- [x] **Model Performance Metrics** — see `metrics.json` and "Results" section below
+- [x] **Project Documentation** — see `docs/VidyutRakshak_Documentation.docx`
+- [x] **GitHub Repository Link** — [github.com/omkar-103/vidyutrakshak-theft-detection](https://github.com/omkar-103/vidyutrakshak-theft-detection)
+
+---
+
 ## Problem Statement
 
 Electricity theft and non-technical losses cost Indian power distribution companies (DISCOMs) an estimated ₹1.5 lakh crore annually. Current detection relies heavily on manual field inspections, which are slow, expensive, and easy to evade. VidyutRakshak uses machine learning on smart meter consumption data to flag likely theft cases automatically, with **explainable risk scores** that field inspectors can act on with confidence — not just a black-box "fraud" flag.
@@ -80,8 +91,10 @@ vidyutrakshak-theft-detection/
 ├── model_comparison.png                              # XGBoost vs LSTM ROC curve comparison
 ├── shap_summary.png                                  # Global SHAP feature importance plot
 ├── shap_individual_example.png                       # Individual customer SHAP force plot explanation
+├── PPT/
+│   └── Explainable-AI-for-Electricity-Theft-Detection-Built-for-India.pptx.pptx # Final presentation slides
 └── docs/
-    └── svfbn.docx                                    # Project documentation
+    └── VidyutRakshak_Documentation.docx              # Comprehensive project documentation
 ```
 
 ## Team
